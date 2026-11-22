@@ -52,14 +52,22 @@ function TacVillagers()
 		local b = "villagers.v." .. id .. "."
 		if GetBool(b .. "alive") then
 			local pos = Vec(GetFloat(b .. "x"), GetFloat(b .. "y"), GetFloat(b .. "z"))
+			-- (their positions come twice a second: the speed is taken between two different positions - at 10 Hz
+			-- most samples saw none and a walking villager read as standing; the joint villagers run)
 			local l = vlLast[id]
-			local v = 0
-			if l and now - l.t > 0.05 then
-				v = VecLength(Vec(pos[1] - l.pos[1], 0, pos[3] - l.pos[3])) / (now - l.t)
-				l.v = 0.5 * (l.v or v) + 0.5 * v
-				v = l.v
+			local v = l and l.v or 0
+			if not l then
+				vlLast[id] = {pos = pos, t = now, v = 0}
+			else
+				local moved = VecLength(Vec(pos[1] - l.pos[1], 0, pos[3] - l.pos[3]))
+				if moved > 0.02 and now - l.t > 0.2 then
+					v = moved / (now - l.t)
+					vlLast[id] = {pos = pos, t = now, v = v}
+				elseif now - l.t > 1.2 then                          -- (no new position for a while: standing)
+					v = 0
+					vlLast[id] = {pos = pos, t = now, v = 0}
+				end
 			end
-			if not l or now - l.t > 0.05 then vlLast[id] = {pos = pos, t = now, v = v} end
 			vl[#vl + 1] = {id = id, pos = pos, speed = v, shape = GetInt(b .. "shape")}
 		end
 	end

@@ -268,10 +268,14 @@ function TacWireAction(p)
 		if not at then return end
 		local len = VecLength(VecSub(at, s.pos))
 		if len > TAC_WIRE_LEN or len < 0.4 then TacEvent("deny", at) return end
-		local dir = VecScale(VecSub(at, s.pos), 1 / len)
+		-- (the wire's line: to where it ties on the hook, 0.3 m off the surface - to the aimed point itself a bump on
+		-- rough ground refused it: the joint villagers run)
+		local tie = VecAdd(at, VecScale(n, 0.3))
+		local tl = VecLength(VecSub(tie, s.pos))
+		local dir = VecScale(VecSub(tie, s.pos), 1 / tl)
 		QueryRejectBody(s.charge)
 		QueryRequire("physical")
-		local hit, d = QueryRaycast(s.pos, dir, len - 0.1)
+		local hit, d = QueryRaycast(s.pos, dir, tl - 0.15)
 		if hit then TacEvent("deny", at) return end
 		local hook = TacSpawnWorld("wiretrap_hook", Transform(VecAdd(at, VecScale(n, 0.17)), TacOnSurface(n, fwd)))
 		if not hook then return end
