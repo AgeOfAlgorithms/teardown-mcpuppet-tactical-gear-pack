@@ -1,8 +1,9 @@
 -- The motion sensor (client only, the owner's screen): held, it pings every TAC_SENSOR_EVERY s; a player within
 -- TAC_SENSOR_RANGE m who MOVES gets revealed - the user: "sensed player gets revealed to the owner of the sensor just
 -- like echolocation on hvc mod": their live pose drawn as glowing lines through walls for TAC_SENSOR_SHOW s, as
--- Humans vs Clickers draws an echolocated human (its capturePose / drawPose). No radar on screen (the user: "that
--- should be a separate equipment").
+-- Humans vs Clickers draws an echolocated human (its capturePose / drawPose) - and a radar, bottom right (the user,
+-- after taking it out once: "you hold this device and you can sense all the movements around you in a capped radius
+-- ... a radar is definitely needed"): the last pings' blips, turning as you turn.
 
 TAC_SENSOR_EVERY, TAC_SENSOR_RANGE, TAC_SENSOR_SHOW = 2.5, 30, 2.0
 TAC_SENSOR_MOVE = 1.0                            -- m/s: slower than this (standing, creeping) is not sensed
@@ -16,7 +17,8 @@ local CHAINS = {
 	{"pelvis", "leg_upper_r", "leg_lower_r", "foot_r"},
 }
 
-local nextPing = 0
+local nextPing, pingAt = 0, -100
+local blips = {}         -- {pos (world), t0}: what the last pings caught, for the radar
 local seen = {}          -- player -> time revealed until
 local seenV = {}         -- {pos, untilT}: moving villagers caught by the last pings (AI Villagers: shared.tac.vmove)
 local last = {}          -- player -> {pos, t}: speed from movement (a remote player's velocity isn't always known)
@@ -54,6 +56,7 @@ function TacSensorTick(dt)
 	end
 	if now < nextPing then return end
 	nextPing = now + TAC_SENSOR_EVERY
+	pingAt = now
 	local mine = GetPlayerTransform(me)
 	local any = false
 	for _, p in ipairs(GetAllPlayers()) do
@@ -63,6 +66,7 @@ function TacSensorTick(dt)
 			local d = VecLength(Vec(rel[1], 0, rel[3]))
 			if d <= TAC_SENSOR_RANGE and speedOf(p, now) >= TAC_SENSOR_MOVE then
 				seen[p] = now + TAC_SENSOR_SHOW
+				blips[#blips + 1] = {pos = pos, t0 = now}
 				any = true
 			end
 		end
@@ -72,6 +76,7 @@ function TacSensorTick(dt)
 		local rel = TransformToLocalPoint(mine, pos)
 		if VecLength(Vec(rel[1], 0, rel[3])) <= TAC_SENSOR_RANGE then
 			seenV[#seenV + 1] = {pos = pos, untilT = now + TAC_SENSOR_SHOW}
+			blips[#blips + 1] = {pos = pos, t0 = now}
 			any = true
 		end
 	end
@@ -162,6 +167,54 @@ function TacSensorDraw()
 		end
 	end
 	seenV = keepV
+	if not TacSensorHeld() then return end
+	-- the radar: a green screen, bottom right - range rings, the ping's ring running out, the blips of the last pings
+	-- (where they were caught, seen from where I stand and look now: up is ahead)
+	local R = math.floor(UiHeight() * 0.13)
+	local mine = GetPlayerTransform(me)
+	local eye = GetPlayerEyeTransform(me)
+	local fwd = TransformToParentVec(eye, Vec(0, 0, -1))
+	local look = Transform(mine.pos, QuatLookAt(mine.pos, VecAdd(mine.pos, Vec(fwd[1], 0, fwd[3]))))
+	UiPush()
+	UiTranslate(UiWidth() - R - 40, UiHeight() - R - 60)
+	UiAlign("center middle")
+	UiColor(0.02, 0.07, 0.03, 0.82)
+	UiCircle(R + 6)
+	UiColor(0.25, 0.9, 0.35, 0.55)
+	UiCircleOutline(R, 2)
+	UiCircleOutline(R * 0.66, 1)
+	UiCircleOutline(R * 0.33, 1)
+	UiRect(2 * R, 1)
+	UiRect(1, 2 * R)
+	local age = now - pingAt
+	if age < 1.2 then
+		UiColor(0.4, 1, 0.5, 0.6 * (1 - age / 1.2))
+		UiCircleOutline(R * math.min(1, age / 0.8), 3)
+	end
+	local keep = {}
+	for _, b in ipairs(blips) do
+		local bage = now - b.t0
+		if bage < TAC_SENSOR_EVERY * 1.6 then
+			keep[#keep + 1] = b
+			local rel = TransformToLocalPoint(look, b.pos)
+			local k = R / TAC_SENSOR_RANGE
+			local bx, bz = rel[1] * k, rel[3] * k
+			local l = math.sqrt(bx * bx + bz * bz)
+			if l > R - 4 then bx, bz = bx * (R - 4) / l, bz * (R - 4) / l end   -- (kept on the screen's rim)
+			UiPush()
+			UiTranslate(bx, bz)                                          -- (my local -z is ahead: up on the screen)
+			UiColor(0.5, 1, 0.55, 1 - bage / (TAC_SENSOR_EVERY * 1.6))
+			UiCircle(5)
+			UiPop()
+		end
+	end
+	blips = keep
+	UiColor(0.6, 1, 0.65, 0.9)
+	UiCircle(3)                                                    -- me
+	UiTranslate(0, R + 18)
+	UiFont("bold.ttf", 16)
+	UiText("MOTION  " .. TAC_SENSOR_RANGE .. " m")
+	UiPop()
 end
 
 -- (tests) is player p revealed on this screen now

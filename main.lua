@@ -29,6 +29,7 @@ function server.tick(dt)
 	TacThrowTick(dt)
 	TacPlaceTick(dt)
 	TacVillagersTick()
+	TacNvgServerTick()
 end
 
 function server.update(dt)

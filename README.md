@@ -12,13 +12,13 @@ On the Steam Workshop: [McPuppet Tactical Gear Pack Vol 1](https://steamcommunit
 ## The gear
 - **Binoculars**: hold left click to look through them. A mil-dot reticle and a range finder show how far away the thing in the middle is.
 - **Motion Sensor**: while you hold it, it pings every 2.5 seconds. Anyone moving within 30 m shows up on your screen as a glowing figure through walls. Standing still or creeping keeps you hidden.
-- **Night-Vision Goggles**: worn on the head. Press **N** to switch them on and the dark turns bright green. A flashbang hits much harder through them.
+- **Night-Vision Goggles**: worn on the head. Press **F** (the flashlight key: no flashlight while you wear them) to switch them on and the dark turns bright green. A flashbang hits much harder through them.
 - **Glowsticks** (5 per pack): left click cracks one and throws it. Each glows green for 3 minutes.
 - **Flashbang** (2 per pack): goes off 1.8 s after the throw. Anyone within 15 m who can see it is blinded and their ears ring. It hurts most if they're looking straight at it. No damage.
 - **Smoke Grenade** (2 per pack): goes off 1.5 s after the throw. A thick cloud for 25 seconds.
 - **C4** (one use): first click sticks it where you aim, or throws it so it sticks where it lands. Second click blows it up.
-- **Claymore** (one use): set it down facing where you look. It arms after 2.5 s and fires steel pellets at anyone else who walks into its front.
-- **Wire Trap** (one use): click to plant the charge on a wall or post, then click again to hook the wire up to 6 m away. Anyone but you crossing the wire sets it off, and so does anything thrown through it.
+- **Claymore** (one use): set it down facing where you look. It arms after 2.5 s and fires steel pellets at anyone who walks into its front, you included.
+- **Wire Trap** (one use): click to plant the charge on a wall or post, then click again to hook the wire up to 6 m away. It arms after 2 s; anyone crossing the wire sets it off, you included, and so does anything thrown through it.
 
 Anything set down can be shot, hit or caught in a blast: C4, claymores and wire traps go off, a flashbang or smoke grenade pops (a smoking one bursts), a glowstick breaks.
 

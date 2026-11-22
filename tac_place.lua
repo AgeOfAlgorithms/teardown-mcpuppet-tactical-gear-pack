@@ -176,7 +176,7 @@ local function clayTick(now)
 			local fwd = TransformToParentVec(t, Vec(0, 0, -1))
 			local eye = TransformToParentPoint(t, Vec(0, 0.05, -0.12))
 			for _, v in ipairs(GetAllPlayers()) do
-				if v ~= s.owner and GetPlayerHealth(v) > 0 then
+				if GetPlayerHealth(v) > 0 then                       -- (anyone, the owner too - the user; it arms after TAC_CLAY_ARM)
 					local chest = VecAdd(GetPlayerTransform(v).pos, Vec(0, 1.0, 0))
 					local to = VecSub(chest, eye)
 					local d = VecLength(to)
@@ -299,7 +299,7 @@ local function wireTick(now)
 		local fire = not IsHandleValid(w.charge) or TacBroken(w.charge) or not IsHandleValid(w.hook) or TacBroken(w.hook)
 		if not fire and now >= w.armAt then
 			for _, v in ipairs(GetAllPlayers()) do
-				if v ~= w.owner and GetPlayerHealth(v) > 0 then
+				if GetPlayerHealth(v) > 0 then                       -- (anyone, the owner too - the user; it arms after TAC_WIRE_ARM)
 					local f = GetPlayerTransform(v).pos
 					-- (the body as a line from the shins to the chest: crossing anywhere on it)
 					for _, h in ipairs({0.25, 0.6, 1.0, 1.4}) do

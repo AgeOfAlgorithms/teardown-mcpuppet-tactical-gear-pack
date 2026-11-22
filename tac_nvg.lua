@@ -1,8 +1,10 @@
--- Night-vision goggles (client only): worn in the head slot (the wear engine says so in inventory.worn.<me>), N
--- switches them on and off. On: the picture goes green and colourless, brighter, a light at the eye lights the dark,
+-- Night-vision goggles: worn in the head slot (the wear engine says so in inventory.worn.<me>), F (the flashlight
+-- key) switches them on and off. On: the picture goes green and colourless, brighter, a light at the eye lights the dark,
 -- a dark rim and faint scan lines. A flashbang through them hits harder (tac_throw.lua).
 
-TAC_NVG_KEY = "n"
+-- F (the flashlight key) switches them, not N (the user: N switches windows in Teardown): while a player wears them
+-- the flashlight is off for them (TacNvgServerTick), and its key is ours
+TAC_NVG_INPUT = "flashlight"
 
 local on = false
 local applied = nil      -- the picture's own settings while ours are on (post-processing keeps what is set: put back)
@@ -33,7 +35,9 @@ end
 -- (client tick)
 function TacNvgTick(dt)
 	if not TacNvgWorn() then on = false ppApply(false) return end
-	if TacKey(TAC_NVG_KEY) then
+	local fl = GetFlashlight(GetLocalPlayer())                        -- (worn: a flashlight that was on goes off -
+	if fl and fl ~= 0 and IsLightActive(fl) then SetLightEnabled(fl, false) end   -- the user)
+	if InputPressed(TAC_NVG_INPUT) and not GetBool("proxchat.typing." .. GetLocalPlayer()) then
 		on = not on
 		PlaySound(TacSound(on and "nvgon" or "nvgoff", on and "clickup.ogg" or "clickdown.ogg"),
 			GetPlayerEyeTransform(GetLocalPlayer()).pos, 0.6, false, on and 1.6 or 1.2)
@@ -81,9 +85,37 @@ function TacNvgDraw()
 	UiTranslate(30, H - 40)
 	UiFont("bold.ttf", 18)
 	UiColor(0.5, 1, 0.55, 0.8)
-	UiText("NV  [" .. string.upper(TAC_NVG_KEY) .. "]")
+	local key = GetString("options.input.keymap.flashlight")
+	UiText("NV  [" .. (key ~= "" and string.upper(key) or "F") .. "]")
 	UiPop()
 end
 
 -- (tests) switch them on or off without the key
 function TacNvgForce(v) on = v == true end
+
+-- (server tick) a player wearing the goggles has no flashlight - its key switches night vision (the flashlight would
+-- light up and toggle too); back when they take them off. Written on a change and re-said every 2 s (not every tick:
+-- a replicated value written each tick costs traffic)
+local nvgNoLight, nvgAt = {}, 0
+function TacNvgServerTick()
+	local now = GetTime()
+	local again = now >= nvgAt
+	if again then nvgAt = now + 2 end
+	local live = {}
+	for _, p in ipairs(GetAllPlayers()) do
+		live[p] = true
+		local wears = string.find(" " .. GetString("inventory.wear." .. p) .. " ", " " .. TAC_NVG .. " ", 1, true) ~= nil
+		if wears and (not nvgNoLight[p] or again) then
+			SetPlayerParam("flashlightallowed", false, p)
+			if not nvgNoLight[p] then                                    -- (just put on: a flashlight that was on goes off)
+				local fl = GetFlashlight(p)
+				if fl and fl ~= 0 then SetLightEnabled(fl, false) end
+			end
+			nvgNoLight[p] = true
+		elseif not wears and nvgNoLight[p] then
+			SetPlayerParam("flashlightallowed", true, p)
+			nvgNoLight[p] = nil
+		end
+	end
+	for p in pairs(nvgNoLight) do if not live[p] then nvgNoLight[p] = nil end end
+end
