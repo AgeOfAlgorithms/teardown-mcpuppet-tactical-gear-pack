@@ -2,7 +2,7 @@
 
 ![McPuppet Tactical Gear Pack Vol 1](preview.jpg)
 
-On the Steam Workshop: [McPuppet Tactical Gear Pack Vol 1](https://steamcommunity.com/sharedfiles/filedetails/?id=3843864078)
+On the Steam Workshop: [McPuppet Tactical Gear Pack Vol 1](https://steamcommunity.com/sharedfiles/filedetails/?id=3843881225)
 
 **9 pieces of tactical gear for the McPuppet Inventory System, on any map, in single player and multiplayer.** Scout with binoculars, track movement through walls, see in the dark, blind a room, hide behind smoke and set traps that go off under someone else's feet.
 
@@ -34,7 +34,7 @@ Join the [Discord community](https://discord.gg/gNpRewdkxf) to post bug reports 
 
 ## Install
 
-Subscribe on the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3843864078), or clone this repository into
+Subscribe on the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3843881225), or clone this repository into
 `Documents/Teardown/mods/tactical gear pack vol 1`. Enable it under **Global mods** (in multiplayer the host does).
 
 ## Credits
