@@ -1,0 +1,6 @@
+name = McPuppet Tactical Gear Pack Vol 1
+author = AgeOfAlgorithms and Claude
+description = Tactical gear for the McPuppet Inventory System (required: enable it too, then play any map, single player or multiplayer): binoculars with a range finder, a motion sensor that reveals moving players through walls, night-vision goggles (N), glowsticks, flashbangs, smoke grenades, C4 with a remote detonator (click to stick or throw it, click again to blow it), a claymore and an explosive wire trap. Buy them in the inventory's store.
+tags = Gameplay, Tool
+version = 2
+preview = preview_td.jpg
